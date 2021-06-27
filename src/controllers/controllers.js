@@ -1,7 +1,4 @@
-import mongoose from "mongoose";
-import fs from "fs";
 import { setExpiry, checkExpiration } from "../helpers";
-// require("./models/Url");
 import Url from "../schema/Url";
 
 export const handleAnalytics = function (req, res) {
@@ -54,6 +51,7 @@ export const handleTinyUrl = async (req, res) => {
 export const handleRedirect = async (req, res) => {
   const route = req.params.route;
   const instance = await Url.findOne({ id: route });
+
   if (instance && !checkExpiration(instance.expiration)) {
     // res.send(instance);
     instance.visitors = instance.visitors

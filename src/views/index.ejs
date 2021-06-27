@@ -14,11 +14,18 @@
       .mr8{
         margin: 16px 0;
       }
+      .wrapper{
+        padding-top: 140px;
+      }
+      h1{
+        margin-bottom: 48px;
+      }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1 class="align-center">Url Shortner</h1>
+      <div class="wrapper">
+        <h1 class="align-center">Url Shortner</h1>
       <div class="form-group">
         <div class="row">
             <div class="col-10">
@@ -27,6 +34,15 @@
             <div class="col-2">
               <button id="urlToShorten" class="btn btn-primary">Shorten</button>
             </div>
+        </div>
+        <div class="mr8"></div>
+        <div class="row">
+          <div class="col-2">
+            <label class="control-label">custom alias</label>
+          </div>
+          <div class="col-4">
+            <input id="customShortedLink" class="form-control">
+          </div>
         </div>
         <div class="mr8"></div>
         <div class="row">
@@ -40,15 +56,7 @@
             <button id="copy-url" onclick="copy('short')" class="btn btn-secondary">Copy</button>
           </div>
         </div>
-        <div class="mr8"></div>
-        <div class="row">
-          <div class="col-2">
-            <label class="control-label">custom alias</label>
-          </div>
-          <div class="col-4">
-            <input id="customShortedLink" class="form-control">
-          </div>
-        </div>
+        
         <div class="mr8"></div>
         <div class="row">
           <div class="col-12">
@@ -77,6 +85,8 @@
 
         
       </div>
+      </div>
+      
     </div>
     <script>
       function copy() {
@@ -104,7 +114,6 @@
       $("#analyticsBtn").click(function(){
         $.get("/analytics", function(response, status){
           try {
-            console.log(response)
             let responseTable = response && response.map((item, index)=>{
             item = Object.keys(item).sort().reduce(
               (obj, key) => { 
@@ -113,7 +122,6 @@
               }, 
               {}
             );
-            console.log(item, window.location);
             let tr = document.createElement("tr");
 
             let tdIndex = document.createElement("td");

@@ -15,9 +15,9 @@ import {
 const routes = express.Router({ strict: true });
 
 routes.get("/", renderHomePage);
+routes.get("/analytics", handleAnalytics);
 routes.get("/:route", handleRedirect);
 routes.post("/", handleTinyUrl);
-routes.get("/analytics", handleAnalytics);
 
 
 export default routes;
