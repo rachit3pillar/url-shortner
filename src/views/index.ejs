@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Shortify</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+      .mr8{
+        margin: 16px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="align-center">Url Shortner</h1>
+      <div class="form-group">
+        <div class="row">
+            <div class="col-10">
+              <input id="url" class="form-control">
+            </div>
+            <div class="col-2">
+              <button id="urlToShorten" class="btn btn-primary">Shorten</button>
+            </div>
+        </div>
+        <div class="mr8"></div>
+        <div class="row">
+          <div class="col-2">
+            <label class="control-label">Shorted URL</label>
+          </div>
+          <div class="col-6">
+            <input id="shortedLink" class="form-control">
+          </div>
+          <div class="col-2">
+            <button id="copy-url" onclick="copy('short')" class="btn btn-secondary">Copy</button>
+          </div>
+        </div>
+        <div class="mr8"></div>
+        <div class="row">
+          <div class="col-2">
+            <label class="control-label">custom alias</label>
+          </div>
+          <div class="col-4">
+            <input id="customShortedLink" class="form-control">
+          </div>
+        </div>
+        <div class="mr8"></div>
+        <div class="row">
+          <div class="col-12">
+            <button type="button" class="btn btn-primary" id="analyticsBtn">Get analytics</button>
+          </div>
+        </div>
+
+        <div class="mr8"></div>
+        <div class="row">
+          <div class="col-12">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Url</th>
+                  <th scope="col">shortedLink</th>
+                  <th scope="col">visitors</th>                  
+                </tr>
+              </thead>
+              <tbody id="tbody">
+                
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        
+      </div>
+    </div>
+    <script>
+      function copy() {
+        let copyToClipBoard = document.getElementById("shortedLink");
+        copyToClipBoard.select();
+        document.execCommand("copy");
+        alert("Copied the text: " + copyToClipBoard.value);
+      }
+      $(document).ready(function() {
+        $('#urlToShorten').click(function() {
+          const url = $('#url').val();
+          const customAlias = $("#customShortedLink").val();
+          $.ajax({url: '/', data: { url, customAlias }, type: 'POST', success: function(res) {
+            $('#short').val(window.location.hostname+'/'+res.url);
+            document.getElementById("shortedLink").value = window.location.hostname+':4000/'+res.url;
+            // document.getElementById("shortedLink").innerText =window.location.hostname+'/'+res.url;
+
+            // $('#analytics').val(window.location.hostname+'/analytics/'+res.url)
+          }});
+
+          
+        })
+      })
+
+      $("#analyticsBtn").click(function(){
+        $.get("/analytics", function(response, status){
+          try {
+            console.log(response)
+            let responseTable = response && response.map((item, index)=>{
+            item = Object.keys(item).sort().reduce(
+              (obj, key) => { 
+                obj[key] = item[key]; 
+                return obj;
+              }, 
+              {}
+            );
+            console.log(item, window.location);
+            let tr = document.createElement("tr");
+
+            let tdIndex = document.createElement("td");
+            let tdUrl = document.createElement("td");
+            let shortedUrltd = document.createElement("td");
+            let anchor = document.createElement("a");
+            let shortedUrlVistorsTd = document.createElement("td");
+
+            let nodeIndex = document.createTextNode(index);
+            let nodeUrl = document.createTextNode(item.url);
+            let nodeShortedUrl = document.createTextNode(window.location.href + item.id);
+            let nodeShortedUrlVistors = document.createTextNode(item.visitors);
+
+            tdIndex.appendChild(nodeIndex);
+            tdUrl.appendChild(nodeUrl);
+            anchor.appendChild(nodeShortedUrl);
+            anchor.setAttribute("href", window.location.href + item.id);
+            shortedUrltd.appendChild(anchor);
+
+            shortedUrlVistorsTd.appendChild(nodeShortedUrlVistors);
+
+            tr.appendChild(tdIndex);  
+            tr.appendChild(tdUrl);  
+            tr.appendChild(shortedUrltd);  
+            tr.appendChild(shortedUrlVistorsTd);    
+            
+            document.getElementById("tbody").appendChild(tr);
+          });
+          } catch (error) {
+            console.log(error)
+          }
+          
+        });
+      }); 
+    </script>
+  </body>
+</html>
