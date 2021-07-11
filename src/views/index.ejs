@@ -99,12 +99,9 @@
         $('#urlToShorten').click(function() {
           const url = $('#url').val();
           const customAlias = $("#customShortedLink").val();
-          $.ajax({url: '/', data: { url, customAlias }, type: 'POST', success: function(res) {
+          $.ajax({url: '/create-link', data: { url, customAlias }, type: 'POST', success: function(res) {
             $('#short').val(window.location.hostname+'/'+res.url);
             document.getElementById("shortedLink").value = window.location.hostname+':4000/'+res.url;
-            // document.getElementById("shortedLink").innerText =window.location.hostname+'/'+res.url;
-
-            // $('#analytics').val(window.location.hostname+'/analytics/'+res.url)
           }});
 
           

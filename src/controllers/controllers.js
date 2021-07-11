@@ -1,6 +1,6 @@
 import { setExpiry, checkExpiration } from "../helpers";
 import Url from "../schema/Url";
-
+import { setValue, getValue } from "../services/cacheProvider";
 export const handleAnalytics = function (req, res) {
   try {
     Url.find({}, function (err, urls) {
@@ -48,18 +48,47 @@ export const handleTinyUrl = async (req, res) => {
   });
 };
 
-export const handleRedirect = async (req, res) => {
-  const route = req.params.route;
-  const instance = await Url.findOne({ id: route });
-
+export const trackUrlRedirection = async (url) => {
+  const instance = await Url.findOne({ id: url });
   if (instance && !checkExpiration(instance.expiration)) {
     // res.send(instance);
     instance.visitors = instance.visitors
       ? instance.visitors + 1
       : instance.__v + 1;
     await instance.save();
-    res.redirect(`//${instance.url}`);
+  }
+  // else {
+  //   // res.send(instance);
+  //   Url.create({ url, linkUid, count: 1 });
+  // }
+  return instance;
+};
+
+export const handleRedirect = async (req, res) => {
+  const route = req.params.route;
+  const link = await getValue(route);
+
+  if (!link) {
+    const data = await Url.findOne({ id: route });
+    if (data && !checkExpiration(data.expiration)) {
+      res.redirect(`//${data.url}`);
+    } else {
+      res.send("Expired");
+    }
   } else {
-    res.send("Expired");
+    res.redirect(`//${link}`);
+  }
+
+  const instance = await Url.findOne({ id: route });
+  if (instance && !checkExpiration(instance.expiration)) {
+    // res.send(instance);
+    instance.visitors = instance.visitors
+      ? instance.visitors + 1
+      : instance.__v + 1;
+    await instance.save();
+
+    if (instance.visitors >= 10 && !link) {
+      setValue(route, `//${instance.url}`);
+    }
   }
 };
